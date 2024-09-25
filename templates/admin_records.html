@@ -13,7 +13,7 @@
         
         <!-- Button to clear records -->
         <form action="{{ url_for('clear_records') }}" method="POST" class="mb-3">
-            <button type="submit" class="btn btn-danger">Clear All Records</button>
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to clear all records?')">Clear All Records</button>
         </form>
 
         {% if games %}
@@ -30,13 +30,13 @@
                         <tr>
                             <td>{{ game.id }}</td>
                             <td>
-                                {% set players = game.players.split(',') %}
-                                {% for player in players %}
-                                    {{ player }}<br>
+                                {% set players = game.to_dict().get('players', {}) %}
+                                {% for player_key, player in players.items() %}
+                                    {{ player.name }}<br>
                                 {% endfor %}
                             </td>
                             <td>
-                                {% set roles = game.roles.split(',') %}
+                                {% set roles = game.to_dict().get('roles', []) %}
                                 {% for role in roles %}
                                     {{ role }}<br>
                                 {% endfor %}
@@ -49,5 +49,9 @@
             <p>No active games at the moment.</p>
         {% endif %}
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
