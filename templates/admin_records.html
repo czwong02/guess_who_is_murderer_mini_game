@@ -10,6 +10,12 @@
     <div class="container">
         <h1 class="mt-5">Admin Records</h1>
         <a href="{{ url_for('admin') }}" class="btn btn-primary mb-3">Back to Admin Panel</a>
+        
+        <!-- Button to clear records -->
+        <form action="{{ url_for('clear_records') }}" method="POST" class="mb-3">
+            <button type="submit" class="btn btn-danger">Clear All Records</button>
+        </form>
+
         {% if games %}
             <table class="table table-striped">
                 <thead>
@@ -20,17 +26,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for game_id, game in games.items() %}
+                    {% for game in games %}
                         <tr>
-                            <td>{{ game_id }}</td>
+                            <td>{{ game.id }}</td>
                             <td>
-                                {% for player_id, player_info in game.players.items() %}
-                                    {{ player_info.name }}<br>
+                                {% set players = game.players.split(',') %}
+                                {% for player in players %}
+                                    {{ player }}<br>
                                 {% endfor %}
                             </td>
                             <td>
-                                {% for player_id, player_info in game.players.items() %}
-                                    {{ player_info.role }}<br>
+                                {% set roles = game.roles.split(',') %}
+                                {% for role in roles %}
+                                    {{ role }}<br>
                                 {% endfor %}
                             </td>
                         </tr>
