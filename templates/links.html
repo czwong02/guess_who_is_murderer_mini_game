@@ -1,0 +1,8 @@
+<!-- links.html -->
+<h2>Player Links</h2>
+<p>Share these links with your players:</p>
+<ul>
+    {% for link in game_links %}
+        <li><a href="{{ link }}" target="_blank">{{ link }}</a></li>
+    {% endfor %}
+</ul>
