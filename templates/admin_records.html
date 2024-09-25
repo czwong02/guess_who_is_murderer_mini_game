@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Records</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Admin Records</h1>
+        <a href="{{ url_for('admin') }}" class="btn btn-primary mb-3">Back to Admin Panel</a>
+        {% if games %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Game ID</th>
+                        <th>Players</th>
+                        <th>Roles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for game_id, game in games.items() %}
+                        <tr>
+                            <td>{{ game_id }}</td>
+                            <td>
+                                {% for player_id, player_info in game.players.items() %}
+                                    {{ player_info.name }}<br>
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% for player_id, player_info in game.players.items() %}
+                                    {{ player_info.role }}<br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No active games at the moment.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
