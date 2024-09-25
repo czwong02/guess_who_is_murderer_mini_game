@@ -21,7 +21,9 @@ class Game(db.Model):
     roles = db.Column(db.Text, nullable=False)  # Store roles as a string
     players = db.Column(db.Text, nullable=False)  # Store players as a string
 
-db.create_all()  # Create the database tables
+# Create the database tables if they don't exist
+with app.app_context():
+    db.create_all()  # This will create tables based on your models
 
 @app.route('/')
 def index():
@@ -38,7 +40,7 @@ def admin():
 
         # Save to database
         new_game = Game(id=game_id, num_players=num_players, num_murderers=num_murderers,
-                        roles=','.join(roles), players=', '.join([''] * num_players))
+                        roles=','.join(roles), players=','.join([''] * num_players))  # Empty names initially
         db.session.add(new_game)
         db.session.commit()
         return redirect(url_for('display_links', game_id=game_id))
@@ -66,25 +68,43 @@ def admin_records():
 
 @app.route('/links/<game_id>')
 def display_links(game_id):
-    game = games.get(game_id)
+    game = Game.query.filter_by(id=game_id).first()  # Fetch the game by ID
     if game:
-        game_links = [url_for('player', game_id=game_id, player_id=player_id, _external=True) for player_id in game['players'].keys()]
+        players = game.players.split(',')  # Split players string into list
+        game_links = [url_for('player', game_id=game_id, player_id=i, _external=True) for i in range(len(players))]
         return render_template('links.html', game_links=game_links)
     return "Game not found!", 404
 
-@app.route('/player/<game_id>/<player_id>', methods=['GET', 'POST'])
+@app.route('/admin/clear_records', methods=['POST'])
+def clear_records():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    # Clear all game records
+    db.session.query(Game).delete()
+    db.session.commit()
+    flash('All game records have been cleared.', 'success')
+    return redirect(url_for('admin_records'))
+
+@app.route('/player/<game_id>/<int:player_id>', methods=['GET', 'POST'])
 def player(game_id, player_id):
-    game = games.get(game_id)
-    if game and player_id in game['players']:
-        if request.method == 'POST':
-            name = request.form['name']
-            if game['players'][player_id]['name'] is None:  # First time entry
-                game['players'][player_id]['name'] = name
-                game['players'][player_id]['role'] = game['roles'].pop()  # Assign a random role
-            
-            player_role = game['players'][player_id]['role']
-            return render_template('player.html', role=player_role, name=name)
-        return render_template('enter_name.html')
+    game = Game.query.filter_by(id=game_id).first()  # Fetch the game by ID
+    if game:
+        players = game.players.split(',')  # Convert players string back to a list
+        if player_id < len(players):
+            if request.method == 'POST':
+                name = request.form['name']
+                if not players[player_id]:  # First time entry
+                    players[player_id] = name  # Assign name
+                    roles = game.roles.split(',')  # Split roles string into list
+                    assigned_role = roles[player_id]  # Assign role based on player_id
+                    players[player_id] = {'name': name, 'role': assigned_role}  # Store name and role
+                    game.roles = ','.join(roles)  # Update roles in the game record
+                    db.session.commit()
+                
+                player_role = players[player_id]['role']
+                return render_template('player.html', role=player_role, name=name)
+            return render_template('enter_name.html')
     return "Invalid link!", 404
 
 @app.route('/instructions')
