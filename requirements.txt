@@ -1,3 +1,4 @@
 Flask
-secrets
+secret
 Flask-SQLAlchemy
+OpenSSL
