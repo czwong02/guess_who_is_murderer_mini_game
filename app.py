@@ -12,7 +12,7 @@ app.secret_key = os.urandom(24)
 ADMIN_PASSWORD = 'password_1234'
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate('guess-who-is-murderer-game-firebase-adminsdk-sglzn-dbd5559f79.json')  # Download this file from Firebase Console
+cred = credentials.Certificate('TODO')  # Download this file from Firebase Console
 firebase_admin.initialize_app(cred)
 
 # Initialize Firestore
